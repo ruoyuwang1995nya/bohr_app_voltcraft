@@ -14,16 +14,29 @@ def print_full_traceback(exc):
         exc = exc.cause or exc.context
 
 
-
 def to_parser():
-    return  to_runner(
-        LammpsModel,
-        lmp_runner,
-        version="0.0.1",
-        exception_handler=print_full_traceback#error_handler
-    )
+    return {
+        "LAMMPS": SubParser(LammpsModel, lmp_runner, "Running with LAMMPS"),
+        #"scan": SubParser(SCANModel, scan_runner, "Run SCAN Model"),
+    }
+
+#def to_parser():
+#    return  to_runner(
+#        LammpsModel,
+#        lmp_runner,
+#        version="0.0.1",
+#        exception_handler=print_full_traceback#error_handler
+#    )
 
 
 if __name__ == "__main__":
-    import sys
-    to_parser()(sys.argv[2:])
+    #import sys
+    #to_parser()(sys.argv[2:])
+    run_sp_and_exit(
+        {
+            "LAMMPS": SubParser(LammpsModel, lmp_runner, "Submit MD workflow using LAMMPS"),
+        },
+        description="Workflow submission for Solid electrolyte models",
+        version="0.1.0",
+        exception_handler=print_full_traceback,
+    )
