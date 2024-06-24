@@ -24,13 +24,13 @@ def to_parser():
 #    return  to_runner(
 #        LammpsModel,
 #        lmp_runner,
-#        version="0.0.1",
-#        exception_handler=print_full_traceback#error_handler
-#    )
+##        version="0.0.1",
+ #       exception_handler=print_full_traceback#error_handler
+ #   )
 
 
 if __name__ == "__main__":
-    #import sys
+    import sys
     #to_parser()(sys.argv[2:])
     run_sp_and_exit(
         {

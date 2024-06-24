@@ -12,7 +12,6 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/ruoyuwang1995ucas/LAM-SSB.git",
-    packages=setuptools.find_packages(),
     install_requires=[
         "pydflow>=1.7.83",
         "pymatgen>=2023.8.10",
@@ -29,5 +28,10 @@ setuptools.setup(
         "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
         "Operating System :: OS Independent",
     ],
-    python_requires='>=3.8'
+    python_requires='>=3.8',
+    package_data={'dpa1_model':['models/dpa1/L0-r8/frozen_model.pb']},
+    packages=setuptools.find_packages(),
+    package_dir={"": "."},
+    include_package_data=True
+    
 )

@@ -11,11 +11,7 @@ from . import models
 
 
 def get_global_config(opts: LammpsModel):
-    global_config = {
-        ##### for test purpose only ####
-        
-        
-        
+    global_config = {        
         "dflow_config": {
             "host": opts.dflow_argo_api_server,
             "k8s_api_server": opts.dflow_k8s_api_server,
