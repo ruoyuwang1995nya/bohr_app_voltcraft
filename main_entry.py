@@ -23,29 +23,7 @@ def to_parser():
         exception_handler=print_full_traceback#error_handler
     )
 
-#{
-#        "1-LAMMPS": SubParser(LammpsModel, lmp_runner, "Submit MD workflow using LAMMPS"),
-#    }
-
-#def error_handler(exc):
-#    print(f"Error: {exc}")
-
-
-def main():
-    # excute APEX app main flow
-    run_sp_and_exit(
-        to_parser(),
-        description="Voltcraft workflow submission",
-        version="1.2.0",
-        #exception_handler=error_handler
-    )
-
 
 if __name__ == "__main__":
-    import shutil
-    import os
     import sys
-    if not os.path.isdir('models'):
-        shutil.copytree('/models','models')
-    #main()
     to_parser()(sys.argv[2:])
