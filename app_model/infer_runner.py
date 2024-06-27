@@ -143,7 +143,7 @@ def infer_runner(opts: LammpsModel):
     
     # submit APEX workflow
     submit_workflow(
-        parameter=parameter_dicts[0],
+        parameter=parameter_dicts,
         config_dict=config_dict,
         work_dir=['./'],
         flow_type="inference",
