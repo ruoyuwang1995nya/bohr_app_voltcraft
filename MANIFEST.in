@@ -1,1 +1,2 @@
 include ./app_model/models/dpa1/L0-r8/*.pb
+include ./app_model/models/dpa2/*.pth

@@ -108,11 +108,9 @@ def infer_runner(opts: LammpsModel):
     for ii in opts.configurations:
         os.chdir(workdir)
         conf_dir = returns_dir / ("sys.%06d" % (count))
+        os.chdir(cwd)
         with zipfile.ZipFile(ii, 'r') as zip_ref:
             zip_ref.extractall(conf_dir)
-        #conf_dir.mkdir()
-        os.chdir(cwd)
-        shutil.copytree(ii, conf_dir)
         count += 1
 
     # papare potential files
@@ -120,11 +118,11 @@ def infer_runner(opts: LammpsModel):
     #__self__
     if opts.model_version == "dpa1":
         model_path=Path(models.__path__[0])/'dpa1/L0-r8/frozen_model.pb'
-    shutil.copy(model_path,workdir) 
+        shutil.copy(model_path,workdir) 
     
     if opts.model_version == "dpa2":
         model_path=Path(models.__path__[0])/'dpa2/frozen_model.pth'
-    shutil.copy(model_path,workdir) 
+        shutil.copy(model_path,workdir) 
     
     
     if opts.potential_models:
