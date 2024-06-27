@@ -66,7 +66,7 @@ class UploadFiles(BaseModel):
 
 class GlobalConfig(BaseModel):
     lammps_image_name: String = Field(
-        default="registry.dp.tech/dptech/prod-11045/deepmdkit-phonolammps:2.1.1", 
+        default="registry.dp.tech/dptech/dpmd:2.2.8-cuda12.0", 
         description='LAMMPS image address for MD simulation'
     )
     lammps_run_command: String = Field(

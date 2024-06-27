@@ -29,7 +29,10 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     python_requires='>=3.8',
-    package_data={'dpa1_model':['models/dpa1/L0-r8/frozen_model.pb']},
+    package_data={
+        'dpa1_model':['models/dpa1/L0-r8/frozen_model.pb'],
+        'dpa2_model':['models/dpa2/frozen_model.pth']
+        },
     packages=setuptools.find_packages(),
     package_dir={"": "."},
     include_package_data=True

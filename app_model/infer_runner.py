@@ -68,7 +68,7 @@ def get_interaction(opts: LammpsModel):
         interaction["model"]="frozen_model.pb"
         
     elif opts.model_version == "dpa2":
-        interaction["model"]="frozen_model.pt"
+        interaction["model"]="frozen_model.pth"
         #interaction["potcar_prefix"]="models/dpa1/L0-r8"
         
     return interaction
@@ -123,7 +123,7 @@ def infer_runner(opts: LammpsModel):
     shutil.copy(model_path,workdir) 
     
     if opts.model_version == "dpa2":
-        model_path=Path(models.__path__[0])/'dpa2/frozen_model.pt'
+        model_path=Path(models.__path__[0])/'dpa2/frozen_model.pth'
     shutil.copy(model_path,workdir) 
     
     
