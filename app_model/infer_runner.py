@@ -42,7 +42,7 @@ def get_global_config(opts: LammpsModel):
                     },
                 },
             },
-        "infer_image_name": opts.lammps_image_name,
+        "inference_image_name": opts.lammps_image_name,
         "group_size": opts.group_size,
         "pool_size": opts.pool_size,
         "run_command": opts.lammps_run_command,
@@ -84,7 +84,7 @@ def get_inference(opts: LammpsModel):
 
 def get_parameter_dict(opts: LammpsModel):
     parameter_dict = {
-        "structures":  ["returns/sys.*/*"],
+        "structures":  ["returns/sys.*"],
         "interaction": get_interaction(opts),
     }
     if get_inference(opts):
@@ -143,7 +143,7 @@ def infer_runner(opts: LammpsModel):
     
     # submit APEX workflow
     submit_workflow(
-        parameter=parameter_dicts,
+        parameter=parameter_dicts[0],
         config_dict=config_dict,
         work_dir=['./'],
         flow_type="inference",

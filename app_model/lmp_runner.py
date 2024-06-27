@@ -262,7 +262,7 @@ def lmp_runner(opts: LammpsModel):
     
     # submit APEX workflow
     submit_workflow(
-        parameter=parameter_dicts,
+        parameter=parameter_dicts[0],
         config_dict=config_dict,
         work_dir=['./'],
         flow_type=None,
