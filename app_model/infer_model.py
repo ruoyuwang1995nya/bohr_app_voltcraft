@@ -120,7 +120,7 @@ class InterOptions(BaseModel):
 @ui.Visible(InterOptions, "inter_type", Equal, "deepmd")
 class DPVersion(BaseModel):
     dpmd_version: String = Field(
-        default="2.1.5",
+        default="3.0.0",
         description="Version DeepMD-Kit"
     )
 @inference_group

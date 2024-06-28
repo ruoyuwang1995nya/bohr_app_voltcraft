@@ -136,7 +136,7 @@ class InterOptions(BaseModel):
 @ui.Visible(InterOptions, "inter_type", Equal, "deepmd")
 class DPVersion(BaseModel):
     dpmd_version: String = Field(
-        default="2.1.5",
+        default="2.2.8",
         description="Version DeepMD-Kit"
     )
 

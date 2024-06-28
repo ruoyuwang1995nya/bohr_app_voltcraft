@@ -6,12 +6,12 @@ import json
 from monty.serialization import loadfn
 #from apex.submit import submit_workflow
 from ssb.submit import submit_workflow
-from .lmp_model import LammpsModel
+from .infer_model import InferenceModel
 from . import models
 
 
 
-def get_global_config(opts: LammpsModel):
+def get_global_config(opts: InferenceModel):
     global_config = {        
         "dflow_config": {
             "host": opts.dflow_argo_api_server,
@@ -53,7 +53,7 @@ def get_global_config(opts: LammpsModel):
     return global_config
 
 
-def get_interaction(opts: LammpsModel):
+def get_interaction(opts: InferenceModel):
 
     interaction = {
         "type": opts.inter_type,
@@ -74,14 +74,14 @@ def get_interaction(opts: LammpsModel):
 
 
 
-def get_inference(opts: LammpsModel):
+def get_inference(opts: InferenceModel):
     inference_dict = {
         "type_map":opts.type_map_infer
     }
     return inference_dict
 
 
-def get_parameter_dict(opts: LammpsModel):
+def get_parameter_dict(opts: InferenceModel):
     parameter_dict = {
         "structures":  ["returns/sys.*"],
         "interaction": get_interaction(opts),
@@ -91,7 +91,7 @@ def get_parameter_dict(opts: LammpsModel):
     return parameter_dict
 
 
-def infer_runner(opts: LammpsModel):
+def infer_runner(opts: InferenceModel):
     cwd = Path.cwd()
     parameter_dicts = []
     print('start running....')
