@@ -42,7 +42,7 @@ def get_global_config(opts: LammpsModel):
                     },
                 },
             },
-        "inference_image_name": opts.lammps_image_name,
+        "inference_image_name": opts.infer_image_name,
         "group_size": opts.group_size,
         "pool_size": opts.pool_size,
         "run_command": opts.lammps_run_command,
