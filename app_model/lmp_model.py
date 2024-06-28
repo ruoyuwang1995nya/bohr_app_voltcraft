@@ -59,7 +59,7 @@ class UploadFiles(BaseModel):
         #Field(..., description='Interatomic potential files required during test', )
     parameter_files: List[InputFilePath] = \
         Field(None, ftypes=['json'], max_file_count=2,
-                description='(Optional) Specify parameter `JSON` files for APEX to override the default settings,\
+                description='(Optional) Specify parameter `JSON` files for SSB-MD to override the default settings,\
                (Do not upload if want to do setting manually in the later UI page)',
         )
 
@@ -75,7 +75,7 @@ class GlobalConfig(BaseModel):
     )
     apex_image_name: String = Field(
         default="registry.dp.tech/dptech/prod-11045/apex-dependency:1.2.0", 
-        description='Image address including dependencies for APEX to run'
+        description='Image address including dependencies of APEX to run'
     )
     scass_type: String = Field(
         default="c8_m31_1 * NVIDIA T4", 

@@ -45,13 +45,13 @@ class InjectConfig(BaseModel):
 
 
 class UploadFiles(BaseModel):
-    configurations: List[InputFilePath] = \
-        Field(..., description='Configuration `POSCAR` to be tested (name differently for multiple files)')
+    datasets: List[InputFilePath] = \
+        Field(..., description='Test data for inference.')
     potential_models: Optional[List[InputFilePath]] #= \
         #Field(..., description='Interatomic potential files required during test', )
-    parameter_files: List[InputFilePath] = \
+    parameter_files: Optional[List[InputFilePath]] = \
         Field(None, ftypes=['json'], max_file_count=2,
-                description='(Optional) Specify parameter `JSON` files for APEX to override the default settings,\
+                description='(Optional) Specify parameter `JSON` files for SSB-indference to override the default settings,\
                (Do not upload if want to do setting manually in the later UI page)',
         )
 
@@ -59,7 +59,7 @@ class UploadFiles(BaseModel):
 class GlobalConfig(BaseModel):
     infer_image_name: String = Field(
         default="registry.dp.tech/dptech/deepmd-kit:2024Q1-d23cf3e", 
-        description='Image address including dependencies for APEX to run'
+        description='Image address including dependencies for SSB-indference to run'
     )
     scass_type: String = Field(
         default="c8_m31_1 * NVIDIA T4", 
