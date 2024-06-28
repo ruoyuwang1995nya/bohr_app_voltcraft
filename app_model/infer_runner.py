@@ -68,7 +68,6 @@ def get_interaction(opts: InferenceModel):
         
     elif opts.model_version == "dpa2":
         interaction["model"]="frozen_model.pth"
-        #interaction["potcar_prefix"]="models/dpa1/L0-r8"
         
     return interaction
 
@@ -76,7 +75,7 @@ def get_interaction(opts: InferenceModel):
 
 def get_inference(opts: InferenceModel):
     inference_dict = {
-        "type_map":opts.type_map_infer
+        "type_map":[k for k in opts.type_map.keys()]
     }
     return inference_dict
 

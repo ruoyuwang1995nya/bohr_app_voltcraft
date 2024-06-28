@@ -361,8 +361,8 @@ class MSDParameters(BaseModel):
         default=True, 
         description='Using template for MSD calculation')
     
-    msd_ion_list: Dict[String, Int] = Field(
-        default={'Li':0},
+    msd_ion_list: List[String] = Field(
+        default={'Li'},
         description='Atom type to calculate MSD'
     )
     
@@ -402,17 +402,17 @@ class MSDTemplate(BaseModel):
     msd_equi_step: Float = Field(
         default=1000,
         ge=0,
-        description='Energy covergence tolerance for minimization'
+        description='Number of step for equilibration'
     )
     msd_run_step: Float = Field(
         default=1000,
         ge=0,
-        description='Energy covergence tolerance for minimization'
+        description='Number of step for NVT production run'
     )
     msd_out_step: Float = Field(
         default=1000,
         ge=0,
-        description='Energy covergence tolerance for minimization'
+        description='Step interval to dump MSD'
     )
     msd_in_lmp: String = Field(
         default=None,
@@ -422,6 +422,11 @@ class MSDTemplate(BaseModel):
     msd_res_filename: String = Field(
         default='msd.out',
         description='Output file for MSD calculation')
+    
+    skip_sigma: Boolean = Field(
+        default=False,
+        description="Whether to calculate ion conductivity with Nernst-Einstein relation"
+    )
     
     
 

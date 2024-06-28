@@ -47,8 +47,8 @@ class InjectConfig(BaseModel):
 class UploadFiles(BaseModel):
     datasets: List[InputFilePath] = \
         Field(..., description='Test data for inference.')
-    potential_models: Optional[List[InputFilePath]] #= \
-        #Field(..., description='Interatomic potential files required during test', )
+    potential_models: Optional[List[InputFilePath]] = \
+        Field(None, description='Custom interatomic potential file, if neccesary', )
     parameter_files: Optional[List[InputFilePath]] = \
         Field(None, ftypes=['json'], max_file_count=2,
                 description='(Optional) Specify parameter `JSON` files for SSB-indference to override the default settings,\
@@ -84,18 +84,8 @@ class ModelVersion(String,Enum):
     dpa1='dpa1'
     dpa2='dpa2'
     
-@inter_group
-class InterOptions(BaseModel):
-    inter_type: InterTypeOptions = Field(
-        default=InterTypeOptions.deepmd, 
-        description='Interatomic pair style type'
-    )
-    model_version: ModelVersion = Field(
-        default=ModelVersion.dpa1,
-        description="Choose version of DPA-SSE model"
-    )
-    type_map: Dict[String, Int] = Field(
-        default={
+class TypeMap(Dict,Enum):
+    sse={
             "Li":0,
             "B":1,
             "O":2,
@@ -111,7 +101,19 @@ class InterOptions(BaseModel):
             "Sn":12,
             "Sb":13,
             "I":14
-            },
+            }
+@inter_group
+class InterOptions(BaseModel):
+    inter_type: InterTypeOptions = Field(
+        default=InterTypeOptions.deepmd, 
+        description='Interatomic pair style type'
+    )
+    model_version: ModelVersion = Field(
+        default=ModelVersion.dpa1,
+        description="Choose version of DPA-SSE model"
+    )
+    type_map: TypeMap = Field(
+        default=TypeMap.sse,
         description="Element type map (Key for element name (H, He ...); value for mapping order: 0, 1, 2 ...)"
     )
 
@@ -123,31 +125,7 @@ class DPVersion(BaseModel):
         default="3.0.0",
         description="Version DeepMD-Kit"
     )
-@inference_group
-class InferenceOptions(BaseModel):
-    type_map_infer: List[String] =Field(
-        default=[
-            "Li",
-            "B",
-            "O",
-            "Al",
-            "Si",
-            "P",
-            "S",
-            "Cl",
-            "Ga",
-            "Ge",
-            "As",
-            "Br",
-            "Sn",
-            "Sb",
-            "I"
-        ],
-        description="Element type map (Key for element name (H, He ...); value for mapping order: 0, 1, 2 ...)"
-    )
-        
- 
-    
+
 
 class InferenceModel(
     InjectConfig, 
@@ -155,7 +133,6 @@ class InferenceModel(
     GlobalConfig,
     InterOptions, 
     DPVersion,
-    InferenceOptions,
     BaseModel
 ):
     output_directory: OutputDirectory = Field(default='./outputs')
