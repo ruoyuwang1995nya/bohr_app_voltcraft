@@ -84,8 +84,18 @@ class ModelVersion(String,Enum):
     dpa1='dpa1'
     dpa2='dpa2'
     
-class TypeMap(Dict,Enum):
-    sse={
+@inter_group
+class InterOptions(BaseModel):
+    inter_type: InterTypeOptions = Field(
+        default=InterTypeOptions.deepmd, 
+        description='Interatomic pair style type'
+    )
+    model_version: ModelVersion = Field(
+        default=ModelVersion.dpa1,
+        description="Choose version of DPA-SSE model"
+    )
+    type_map: Dict[String, Int] = Field(
+        default={
             "Li":0,
             "B":1,
             "O":2,
@@ -101,19 +111,7 @@ class TypeMap(Dict,Enum):
             "Sn":12,
             "Sb":13,
             "I":14
-            }
-@inter_group
-class InterOptions(BaseModel):
-    inter_type: InterTypeOptions = Field(
-        default=InterTypeOptions.deepmd, 
-        description='Interatomic pair style type'
-    )
-    model_version: ModelVersion = Field(
-        default=ModelVersion.dpa1,
-        description="Choose version of DPA-SSE model"
-    )
-    type_map: TypeMap = Field(
-        default=TypeMap.sse,
+            },
         description="Element type map (Key for element name (H, He ...); value for mapping order: 0, 1, 2 ...)"
     )
 
