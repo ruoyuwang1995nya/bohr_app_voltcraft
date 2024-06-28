@@ -104,7 +104,7 @@ def infer_runner(opts: InferenceModel):
 
     # papare input POSCAR
     count = 0
-    for ii in opts.configurations:
+    for ii in opts.datasets:
         os.chdir(workdir)
         conf_dir = returns_dir / ("sys.%06d" % (count))
         os.chdir(cwd)
