@@ -45,7 +45,6 @@ def get_global_config(opts: LammpsModel):
         "inference_image_name": opts.infer_image_name,
         "group_size": opts.group_size,
         "pool_size": opts.pool_size,
-        "run_command": opts.lammps_run_command,
         "is_bohrium_dflow": True,
     }
     json.dump(global_config, open('global_config_tmp.json', 'w'), indent=2)
