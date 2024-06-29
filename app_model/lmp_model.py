@@ -392,18 +392,18 @@ class MSDTemplate(BaseModel):
         default=[300.0],
         description='Temperature for MSD calculation'
     )
-    msd_equi_step: Float = Field(
+    msd_equi_step: Int = Field(
         default=1000,
         ge=0,
         description='Number of step for equilibration'
     )
-    msd_run_step: Float = Field(
-        default=1000,
+    msd_run_step: Int = Field(
+        default=10000,
         ge=0,
         description='Number of step for NVT production run'
     )
-    msd_out_step: Float = Field(
-        default=1000,
+    msd_out_step: Int = Field(
+        default=100,
         ge=0,
         description='Step interval to dump MSD'
     )
