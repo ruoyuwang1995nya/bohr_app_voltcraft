@@ -163,7 +163,7 @@ def get_properties(opts: LammpsModel):
             ion_list={}
             for k in opts.msd_ion_list:
                 ion_list[k]=opts.type_map.get(k,0)
-            msd_params["msd_res_col"]={
+            msd_params["res_setting"]={
                 "filename":'msd.out',
                 "delimiter": " ",
                 "ion_list":ion_list,   #opts.msd_ion_list,
@@ -176,7 +176,7 @@ def get_properties(opts: LammpsModel):
                     f.write(opts.elastic_in_lmp)
                 msd_params["cal_setting"]["input_prop"] = "custom_elastic_in.lammps"
         else:
-            msd_params["msd_res_col"]={
+            msd_params["res_setting"]={
                 "filename":opts.msd_res_filename,
                 "delimiter": opts.msd_res_del,
                 "ion_list":opts.msd_ion_list,
@@ -264,6 +264,9 @@ def lmp_runner(opts: LammpsModel):
         print(parsed_parameter_dict)
         parameter_dicts.append(parsed_parameter_dict)
     
+    print(parameter_dicts[0])
+    with open('param.json','w') as f:
+        json.dump(parameter_dicts[0],f,indent=4)
     # submit APEX workflow
     submit_workflow(
         parameter=parameter_dicts,
