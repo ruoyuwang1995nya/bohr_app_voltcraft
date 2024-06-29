@@ -117,7 +117,9 @@ def get_parameter_dict(opts: InferenceModel):
     parameter_dict = {
         "structures":  ["returns/sys.*/*"],
         "interaction": inter_param,
-        "direct_inference":[k for k in inter_param["type_map"].keys()]
+        "direct_inference":{
+            "type_map":[k for k in inter_param["type_map"].keys()]
+            }
     }
     return parameter_dict
 
