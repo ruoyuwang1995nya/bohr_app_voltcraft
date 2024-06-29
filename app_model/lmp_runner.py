@@ -112,9 +112,9 @@ def get_relaxation(opts: LammpsModel):
             "ftol": opts.ftol,
             "maxiter": opts.maxiter,
             "maxeval": opts.maxeval,
-            "relax_pos": opts.relax_pos,
-            "relax_shape": opts.relax_shape,
-            "relax_vol": opts.relax_vol,
+            "relax_pos": True,#opts.relax_pos,
+            "relax_shape": True,#opts.relax_shape,
+            "relax_vol": True,#opts.relax_vol,
         }
     }
     return relaxation

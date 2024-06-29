@@ -160,18 +160,18 @@ class RelaxationParameters(BaseModel):
         ge=0,
         description='Maximum number of minimization evaluations'
     )
-    relax_pos: Boolean = Field(
-        default=True,
-        description='Relax atom positions'
-    )
-    relax_shape: Boolean = Field(
-        default=True,
-        description='Relax unit cell shape'
-    )
-    relax_vol: Boolean = Field(
-        default=True,
-        description='Relax unit cell volume'
-    )
+    #relax_pos: Boolean = Field(
+    #    default=True,
+    #    description='Relax atom positions'
+    #)
+    #relax_shape: Boolean = Field(
+    #    default=True,
+    #    description='Relax unit cell shape'
+    #)
+    #relax_vol: Boolean = Field(
+    #    default=True,
+    #    description='Relax unit cell volume'
+    #)
 
 
 @relax_group
