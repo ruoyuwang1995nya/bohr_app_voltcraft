@@ -47,8 +47,8 @@ class InjectConfig(BaseModel):
 class UploadFiles(BaseModel):
     datasets: List[InputFilePath] = \
         Field(..., description='Test data for inference.')
-    potential_models: Optional[List[InputFilePath]] #= \
-        #Field(..., description='Interatomic potential files required during test', )
+    potential_models: Optional[List[InputFilePath]] = \
+        Field(None, description='Custom interatomic potential file, if neccesary', )
     parameter_files: Optional[List[InputFilePath]] = \
         Field(None, ftypes=['json'], max_file_count=2,
                 description='(Optional) Specify parameter `JSON` files for SSB-indference to override the default settings,\
@@ -123,31 +123,7 @@ class DPVersion(BaseModel):
         default="3.0.0",
         description="Version DeepMD-Kit"
     )
-@inference_group
-class InferenceOptions(BaseModel):
-    type_map_infer: List[String] =Field(
-        default=[
-            "Li",
-            "B",
-            "O",
-            "Al",
-            "Si",
-            "P",
-            "S",
-            "Cl",
-            "Ga",
-            "Ge",
-            "As",
-            "Br",
-            "Sn",
-            "Sb",
-            "I"
-        ],
-        description="Element type map (Key for element name (H, He ...); value for mapping order: 0, 1, 2 ...)"
-    )
-        
- 
-    
+
 
 class InferenceModel(
     InjectConfig, 
@@ -155,7 +131,6 @@ class InferenceModel(
     GlobalConfig,
     InterOptions, 
     DPVersion,
-    InferenceOptions,
     BaseModel
 ):
     output_directory: OutputDirectory = Field(default='./outputs')

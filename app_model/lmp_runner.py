@@ -160,12 +160,16 @@ def get_properties(opts: LammpsModel):
                     "msd_step":opts.msd_out_step
                 }
             }
+            ion_list={}
+            for k in opts.msd_ion_list:
+                ion_list[k]=opts.type_map.get(k,0)
             msd_params["msd_res_col"]={
                 "filename":'msd.out',
                 "delimiter": " ",
-                "ion_list":opts.msd_ion_list,
+                "ion_list":ion_list,   #opts.msd_ion_list,
                 "dt":1,
-                "diff_cvt":1e-5
+                "diff_cvt":1e-5,
+                "skip_sigma":opts.skip_sigma
         }
             if opts.elastic_in_lmp:
                 with open('custom_elastic_in.lammps', 'w') as f:
