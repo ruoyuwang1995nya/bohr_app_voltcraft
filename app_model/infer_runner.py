@@ -9,7 +9,35 @@ from ssb.submit import submit_workflow
 from .infer_model import InferenceModel
 from . import models
 
-
+default_type_map={
+            "Li":0,
+            "B":1,
+            "O":2,
+            "Al":3,
+            "Si":4,
+            "P": 5,
+            "S":6,
+            "Cl":7,
+            "Sc":8,
+            "Ga":9,
+            "Ge":10,
+            "As":11,
+            "Se":12,
+            "Br":13,
+            "Y":14,
+            "Zr":15,
+            "In":16,
+            "Sn":17,
+            "Sb":18,
+            "I":19,
+            "Dy":20,
+            "Ho":21,
+            "Er":22,
+            "Tm":23,
+            "Yb":24,
+            "Lu":25,
+            "Ta":26
+            }
 
 def get_global_config(opts: InferenceModel):
     global_config = {        
@@ -55,19 +83,23 @@ def get_global_config(opts: InferenceModel):
 
 def get_interaction(opts: InferenceModel):
 
+
     interaction = {
         "type": opts.inter_type,
-        "type_map": opts.type_map,
+        #"type_map": opts.type_map,
         "deepmd_version": opts.dpmd_version,
     }
-    if opts.potential_models:
+    if opts.model_version == "custom":
         interaction["model"]=[Path(ii).name for ii in opts.potential_models] if len(opts.potential_models) > 1 \
             else Path(opts.potential_models[0])
+        interaction["type_map"]=opts.type_map
     elif opts.model_version == "dpa1":
         interaction["model"]="frozen_model.pb"
+        interaction["type_map"]=default_type_map
         
     elif opts.model_version == "dpa2":
         interaction["model"]="frozen_model.pth"
+        interaction["type_map"]=default_type_map
         
     return interaction
 
@@ -75,18 +107,18 @@ def get_interaction(opts: InferenceModel):
 
 def get_inference(opts: InferenceModel):
     inference_dict = {
-        "type_map":[k for k in opts.type_map.keys()]
+        "type_map":[k for k in default_type_map.keys()]
     }
     return inference_dict
 
 
 def get_parameter_dict(opts: InferenceModel):
+    inter_param=get_interaction(opts)
     parameter_dict = {
-        "structures":  ["returns/sys.*"],
-        "interaction": get_interaction(opts),
+        "structures":  ["returns/sys.*/*"],
+        "interaction": inter_param,
+        "direct_inference":[k for k in inter_param["type_map"].keys()]
     }
-    if get_inference(opts):
-        parameter_dict["direct_inference"] = get_inference(opts)
     return parameter_dict
 
 

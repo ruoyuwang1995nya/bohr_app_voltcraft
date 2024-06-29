@@ -48,7 +48,7 @@ class UploadFiles(BaseModel):
     datasets: List[InputFilePath] = \
         Field(..., description='Test data for inference.')
     potential_models: Optional[List[InputFilePath]] = \
-        Field(None, description='Custom interatomic potential file, if neccesary', )
+        Field(None, description='Custom interatomic potential file (Do not upload if you are to use the pre-trained DPA-SSE model)', )
     parameter_files: Optional[List[InputFilePath]] = \
         Field(None, ftypes=['json'], max_file_count=2,
                 description='(Optional) Specify parameter `JSON` files for SSB-indference to override the default settings,\
@@ -83,6 +83,7 @@ class InterTypeOptions(String, Enum):
 class ModelVersion(String,Enum):
     dpa1='dpa1'
     dpa2='dpa2'
+    custom='custom'
     
 @inter_group
 class InterOptions(BaseModel):
@@ -91,28 +92,16 @@ class InterOptions(BaseModel):
         description='Interatomic pair style type'
     )
     model_version: ModelVersion = Field(
-        default=ModelVersion.dpa1,
+        default=ModelVersion.dpa2,
         description="Choose version of DPA-SSE model"
     )
+
+@inter_group
+@ui.Visible(InterOptions,"model_version", Equal, ModelVersion.custom)
+class CustomPotential(BaseModel):
     type_map: Dict[String, Int] = Field(
-        default={
-            "Li":0,
-            "B":1,
-            "O":2,
-            "Al":3,
-            "Si":4,
-            "P":5,
-            "S":6,
-            "Cl":7,
-            "Ga":8,
-            "Ge":9,
-            "As":10,
-            "Br":11,
-            "Sn":12,
-            "Sb":13,
-            "I":14
-            },
-        description="Element type map (Key for element name (H, He ...); value for mapping order: 0, 1, 2 ...)"
+        default={},
+        description="Element type map (if required)"
     )
 
 
@@ -130,6 +119,7 @@ class InferenceModel(
     UploadFiles, 
     GlobalConfig,
     InterOptions, 
+    CustomPotential,
     DPVersion,
     BaseModel
 ):
