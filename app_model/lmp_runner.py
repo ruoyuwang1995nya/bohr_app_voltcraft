@@ -175,7 +175,7 @@ def get_properties(opts: LammpsModel):
     if opts.select_msd:
         msd_params={
             "type":"msd",
-            "using_template": opts.msd_use_template,
+            "using_template": True,#opts.msd_use_template,
             "temperature": opts.msd_temperature,
             "supercell": opts.msd_supercell,
         }
