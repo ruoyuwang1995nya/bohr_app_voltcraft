@@ -58,15 +58,44 @@ def get_interaction(opts: LammpsModel):
 
     interaction = {
         "type": opts.inter_type,
-        "type_map": opts.type_map,
+        #"type_map": opts.type_map,
         "deepmd_version": opts.dpmd_version,
     }
-    if opts.potential_models:
+    if opts.model_version == "custom":
         interaction["model"]=[Path(ii).name for ii in opts.potential_models] if len(opts.potential_models) > 1 \
             else Path(opts.potential_models[0])
+        interaction["type_map"]=opts.type_map
     elif opts.model_version == "dpa1":
         interaction["model"]="frozen_model.pb"
-        #interaction["potcar_prefix"]="models/dpa1/L0-r8"
+        interaction["type_map"]={
+            "Li":0,
+            "B":1,
+            "O":2,
+            "Al":3,
+            "Si":4,
+            "P": 5,
+            "S":6,
+            "Cl":7,
+            "Sc":8,
+            "Ga":9,
+            "Ge":10,
+            "As":11,
+            "Se":12,
+            "Br":13,
+            "Y":14,
+            "Zr":15,
+            "In":16,
+            "Sn":17,
+            "Sb":18,
+            "I":19,
+            "Dy":20,
+            "Ho":21,
+            "Er":22,
+            "Tm":23,
+            "Yb":24,
+            "Lu":25,
+            "Ta":26
+            }
         
         
     if opts.relax_in_lmp:
@@ -234,10 +263,12 @@ def lmp_runner(opts: LammpsModel):
         model_path=Path(models.__path__[0])/'dpa2/frozen_model.pt'
     shutil.copy(model_path,workdir) 
     
-    
-    if opts.potential_models:
-        for ii in opts.potential_models:
-            shutil.copy(ii, workdir)
+    if opts.model_version  == "custom":
+        if opts.potential_models:
+            for ii in opts.potential_models:
+                shutil.copy(ii, workdir)
+        else:
+            raise FileNotFoundError("Please provide custom model files!")
     
     os.chdir(workdir)
     # papare global config

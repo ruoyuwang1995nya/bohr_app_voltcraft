@@ -55,8 +55,6 @@ class InjectConfig(BaseModel):
 class UploadFiles(BaseModel):
     configurations: List[InputFilePath] = \
         Field(..., description='Configuration `POSCAR` to be tested (name differently for multiple files)')
-    potential_models: Optional[List[InputFilePath]] #= \
-        #Field(..., description='Interatomic potential files required during test', )
     parameter_files: List[InputFilePath] = \
         Field(None, ftypes=['json'], max_file_count=2,
                 description='(Optional) Specify parameter `JSON` files for SSB-MD to override the default settings,\
@@ -98,7 +96,7 @@ class InterTypeOptions(String, Enum):
     
 class ModelVersion(String,Enum):
     dpa1='dpa1'
-    dpa2='dpa2'
+    custom='custom'
     
 @inter_group
 class InterOptions(BaseModel):
@@ -110,27 +108,21 @@ class InterOptions(BaseModel):
         default=ModelVersion.dpa1,
         description="Choose version of DPA-SSE model"
     )
-    type_map: Dict[String, Int] = Field(
-        default={
-            "Li":0,
-            "B":1,
-            "O":2,
-            "Al":3,
-            "Si":4,
-            "P":5,
-            "S":6,
-            "Cl":7,
-            "Ga":8,
-            "Ge":9,
-            "As":10,
-            "Br":11,
-            "Sn":12,
-            "Sb":13,
-            "I":14
-            },
-        description="Element type map (Key for element name (H, He ...); value for mapping order: 0, 1, 2 ...)"
-    )
+    
+    
 
+@inter_group
+@ui.Visible(InterOptions,"model_version", Equal, ModelVersion.custom)
+class CustomPotential(BaseModel):
+    potential_models: Optional[List[InputFilePath]] = Field(
+            None, 
+            description='Custom interatomic potential files (Do not upload if you want to use the pre-trained DPA-SSE model)'
+            )
+    type_map: Dict[String, Int] = Field(
+        default={},
+        description="Element type map (if required)"
+    )
+    
 
 @inter_group
 @ui.Visible(InterOptions, "inter_type", Equal, "deepmd")
@@ -139,6 +131,7 @@ class DPVersion(BaseModel):
         default="2.2.8",
         description="Version DeepMD-Kit"
     )
+    
 
 
 @relax_group
@@ -148,22 +141,22 @@ class RelaxationParameters(BaseModel):
         description='Specify LAMMPS input file for relaxation'
     )
     etol: Float = Field(
-        default=0,
+        default=1e-4,
         ge=0,
         description='Energy covergence tolerance for minimization'
     )
     ftol: Float = Field(
-        default=1e-10,
+        default=1e-4,
         ge=0,
         description='Force covergence tolerance for minimization'
     )
     maxiter: Int = Field(
-        default=5000,
+        default=100,
         ge=0,
         description='Maximum number of minimization steps'
     )
     maxeval: Int = Field(
-        default=500000,
+        default=100,
         ge=0,
         description='Maximum number of minimization evaluations'
     )
@@ -808,6 +801,7 @@ class LammpsModel(
     UploadFiles, 
     GlobalConfig,
     InterOptions, 
+    CustomPotential,
     DPVersion,
     RelaxationParameters,
     RelaxInLmp,
