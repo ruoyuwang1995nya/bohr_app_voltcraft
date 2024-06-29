@@ -362,7 +362,7 @@ class MSDParameters(BaseModel):
         description='Using template for MSD calculation')
     
     msd_ion_list: List[String] = Field(
-        default={'Li'},
+        default=['Li'],
         description='Atom type to calculate MSD'
     )
     
