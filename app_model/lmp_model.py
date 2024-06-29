@@ -55,6 +55,10 @@ class InjectConfig(BaseModel):
 class UploadFiles(BaseModel):
     configurations: List[InputFilePath] = \
         Field(..., description='Configuration `POSCAR` to be tested (name differently for multiple files)')
+    potential_models: Optional[List[InputFilePath]] = \
+        Field(None, 
+            description='Custom interatomic potential files (Do not upload if you want to use the pre-trained DPA-SSE model)'
+            )
     parameter_files: List[InputFilePath] = \
         Field(None, ftypes=['json'], max_file_count=2,
                 description='(Optional) Specify parameter `JSON` files for SSB-MD to override the default settings,\
@@ -114,10 +118,6 @@ class InterOptions(BaseModel):
 @inter_group
 @ui.Visible(InterOptions,"model_version", Equal, ModelVersion.custom)
 class CustomPotential(BaseModel):
-    potential_models: Optional[List[InputFilePath]] = Field(
-            None, 
-            description='Custom interatomic potential files (Do not upload if you want to use the pre-trained DPA-SSE model)'
-            )
     type_map: Dict[String, Int] = Field(
         default={},
         description="Element type map (if required)"
@@ -341,7 +341,7 @@ class ElasticAdvance(BaseModel):
 
 @msd_group
 class MSDOptions(BaseModel):
-    select_msd: Boolean = Field(default=True, 
+    select_msd: Boolean = Field(default=False, 
                                 description='Do mean square displacement (MSD) calculation')
 @msd_group
 @ui.Visible(MSDOptions, "select_msd", Equal, True)
@@ -350,44 +350,14 @@ class MSDParameters(BaseModel):
         default=[1,1,1],
         description='Supercell for MSD calculation'
     )
-    msd_use_template: Boolean = Field(
-        default=True, 
-        description='Using template for MSD calculation')
+    #msd_use_template: Boolean = Field(
+    #    default=False, 
+    #    description='Using template for MSD calculation')
     
     msd_ion_list: List[String] = Field(
         default=['Li'],
         description='Atom type to calculate MSD'
     )
-    
-@msd_group
-@ui.Visible(MSDParameters, "msd_use_template", Equal, False)
-class MSDCustomInput(BaseModel):
-    msd_custom_lmp: List[str] = Field(
-        default=None,
-        description='Custom LAMMPS input files provided by users'
-    )
-    msd_res_filename: String = Field(
-        default='msd.out',
-        description='Output file for MSD calculation'
-    )
-    msd_res_del: String = Field(
-        default=r" ",
-        description='Delimiter in parsing MSD output'
-    )
-    msd_res_dt: Float = Field(
-        default=1.0,
-        description='Delimiter in parsing MSD output'
-    )
-    msd_res_diff_cvt: Float = Field(
-        default=1e-5,
-        description='Delimiter in parsing MSD output'
-    )
-    
-    
-    
-@msd_group
-@ui.Visible(MSDParameters, "msd_use_template", Equal, True)
-class MSDTemplate(BaseModel):
     msd_temperature: List[Float] = Field(
         default=[300.0],
         description='Temperature for MSD calculation'
@@ -412,15 +382,35 @@ class MSDTemplate(BaseModel):
         format="multi-line",
         description='LAMMPS input instruction for MSD MD'
     )
-    msd_res_filename: String = Field(
-        default='msd.out',
-        description='Output file for MSD calculation')
-    
     skip_sigma: Boolean = Field(
         default=False,
         description="Whether to calculate ion conductivity with Nernst-Einstein relation"
     )
     
+#@msd_group
+#@ui.Visible(MSDParameters, "msd_use_template", Equal, False)
+#class MSDCustomInput(BaseModel):
+#    msd_custom_lmp: List[str] = Field(
+#        default=None,
+#        description='Custom LAMMPS input files provided by users'
+#    )
+#    msd_res_filename: String = Field(
+#        default='msd.out',
+#        description='Output file for MSD calculation'
+#    )
+#    msd_res_del: String = Field(
+##        default=r" ",
+#       description='Delimiter in parsing MSD output'
+#    )
+#    msd_res_dt: Float = Field(
+#        default=1.0,
+#        description='Delimiter in parsing MSD output'
+#    )
+#    msd_res_diff_cvt: Float = Field(
+#        default=1e-5,
+#        description='Delimiter in parsing MSD output'
+#    )
+
     
 
 
@@ -813,7 +803,7 @@ class LammpsModel(
     ElasticAdvance,
     MSDOptions,
     MSDParameters,
-    MSDTemplate,
+    #MSDTemplate,
     BaseModel
 ):
     output_directory: OutputDirectory = Field(default='./outputs')

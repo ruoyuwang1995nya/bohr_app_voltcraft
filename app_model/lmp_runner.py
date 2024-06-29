@@ -179,8 +179,8 @@ def get_properties(opts: LammpsModel):
             "temperature": opts.msd_temperature,
             "supercell": opts.msd_supercell,
         }
-        if opts.msd_use_template:
-            msd_params["cal_setting"] = {
+        #if opts.msd_use_template:
+        msd_params["cal_setting"] = {
                 "equi_setting":{
                         "run-step":opts.msd_equi_step
                     },
@@ -189,10 +189,10 @@ def get_properties(opts: LammpsModel):
                     "msd_step":opts.msd_out_step
                 }
             }
-            ion_list={}
-            for k in opts.msd_ion_list:
-                ion_list[k]=opts.type_map.get(k,0)
-            msd_params["res_setting"]={
+        ion_list={}
+        for k in opts.msd_ion_list:
+            ion_list[k]=opts.type_map.get(k,0)
+        msd_params["res_setting"]={
                 "filename":'msd.out',
                 "delimiter": " ",
                 "ion_list":ion_list,   #opts.msd_ion_list,
@@ -200,18 +200,18 @@ def get_properties(opts: LammpsModel):
                 "diff_cvt":1e-5,
                 "skip_sigma":opts.skip_sigma
         }
-            if opts.elastic_in_lmp:
-                with open('custom_elastic_in.lammps', 'w') as f:
-                    f.write(opts.elastic_in_lmp)
-                msd_params["cal_setting"]["input_prop"] = "custom_elastic_in.lammps"
-        else:
-            msd_params["res_setting"]={
-                "filename":opts.msd_res_filename,
-                "delimiter": opts.msd_res_del,
-                "ion_list":opts.msd_ion_list,
-                "dt":opts.msd_res_dt,
-                "diff_cvt":opts.msd_res_diff_cvt
-        }
+        if opts.elastic_in_lmp:
+            with open('custom_elastic_in.lammps', 'w') as f:
+                f.write(opts.elastic_in_lmp)
+            msd_params["cal_setting"]["input_prop"] = "custom_elastic_in.lammps"
+        #else:
+        #    msd_params["res_setting"]={
+        #        "filename":opts.msd_res_filename,
+        #        "delimiter": opts.msd_res_del,
+        #        "ion_list":opts.msd_ion_list,
+        #        "dt":opts.msd_res_dt,
+        #        "diff_cvt":opts.msd_res_diff_cvt
+        #}
         properties.append(msd_params)
 
     return properties
