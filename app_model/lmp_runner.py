@@ -2,13 +2,13 @@ from pathlib import Path
 import os
 import shutil
 import json
+import glob
 from monty.serialization import loadfn
 #from apex.submit import submit_workflow
 from ssb.submit import submit_workflow
 from .lmp_model import LammpsModel
 from . import models
-
-
+from .lmp_report import get_conf_properties
 
 def get_global_config(opts: LammpsModel):
     global_config = {        
@@ -204,14 +204,7 @@ def get_properties(opts: LammpsModel):
             with open('custom_elastic_in.lammps', 'w') as f:
                 f.write(opts.elastic_in_lmp)
             msd_params["cal_setting"]["input_prop"] = "custom_elastic_in.lammps"
-        #else:
-        #    msd_params["res_setting"]={
-        #        "filename":opts.msd_res_filename,
-        #        "delimiter": opts.msd_res_del,
-        #        "ion_list":opts.msd_ion_list,
-        #        "dt":opts.msd_res_dt,
-        #        "diff_cvt":opts.msd_res_diff_cvt
-        #}
+
         properties.append(msd_params)
 
     return properties
@@ -309,6 +302,11 @@ def lmp_runner(opts: LammpsModel):
 
     os.chdir(cwd)
     shutil.copytree(workdir, Path(opts.output_directory)/'workdir', dirs_exist_ok = True)
+    returns_dir = Path.joinpath(Path(opts.output_directory),'workdir/returns')
+    [get_conf_properties(conf).save(str(opts.output_directory))\
+        for conf in returns_dir.iterdir()\
+         if conf.is_dir() and conf.name.startswith("conf.")]
+    
 
 if __name__ == "__main__":
     print(models.__path__)
