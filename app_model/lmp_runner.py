@@ -303,7 +303,7 @@ def lmp_runner(opts: LammpsModel):
     shutil.copytree(workdir, Path(opts.output_directory)/'workdir', dirs_exist_ok = True)
     os.chdir(Path(opts.output_directory))
     returns_dir = Path('workdir/returns')
-    [get_conf_properties(conf).save(str(opts.output_directory))\
+    [get_conf_properties(conf).save('./')\
         for conf in returns_dir.iterdir()\
          if conf.is_dir() and conf.name.startswith("conf.")]
     
