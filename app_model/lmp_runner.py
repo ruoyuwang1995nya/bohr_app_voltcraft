@@ -181,6 +181,7 @@ def get_properties(opts: LammpsModel):
         }
         #if opts.msd_use_template:
         msd_params["cal_setting"] = {
+                "timestep":opts.msd_dt,
                 "equi_setting":{
                         "run-step":opts.msd_equi_step
                     },
@@ -196,7 +197,7 @@ def get_properties(opts: LammpsModel):
                 "filename":'msd.out',
                 "delimiter": " ",
                 "ion_list":ion_list,   #opts.msd_ion_list,
-                "dt":1,
+                "dt":opts.msd_dt,
                 "diff_cvt":1e-5,
                 "skip_sigma":opts.skip_sigma
         }

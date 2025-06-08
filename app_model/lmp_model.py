@@ -377,6 +377,11 @@ class MSDParameters(BaseModel):
         ge=0,
         description='Step interval to dump MSD'
     )
+    msd_dt: Float = Field(
+        default=1.,
+        ge=1,
+        description='Time step in fs for MSD calculation'
+    )
     msd_in_lmp: String = Field(
         default=None,
         format="multi-line",
