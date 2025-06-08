@@ -22,8 +22,7 @@ from dp.launching.cli import (
     run_sp_and_exit,
 )
 
-inter_group = ui.Group('Interaction Type', 'Define interatomic description')
-inference_group =ui.Group('Inference Details', 'Inference Details')
+inter_group = ui.Group('原子力场类型', 'Define interatomic description')
 
 
 class InjectConfig(BaseModel):
@@ -46,34 +45,42 @@ class InjectConfig(BaseModel):
 
 class UploadFiles(BaseModel):
     datasets: List[InputFilePath] = \
-        Field(..., description='Test data for inference.')
+        Field(..., 
+              title='结构数据集',
+              description='待预测的结构数据集.')
     potential_models: Optional[List[InputFilePath]] = \
-        Field(None, description='Custom interatomic potential file (Do not upload if you are to use the pre-trained DPA-SSE model)', )
+        Field(None, 
+              itle='自定义的原子力场文件',
+              description='如使用预训练DPA-SSE模型则无需上传', )
     parameter_files: Optional[List[InputFilePath]] = \
         Field(None, ftypes=['json'], max_file_count=2,
-                description='(Optional) Specify parameter `JSON` files for SSB-indference to override the default settings,\
-               (Do not upload if want to do setting manually in the later UI page)',
+               title='自定义参数文件',
+              description='（可选）JSON格式，覆盖默认设置（如使用参数模板则无需上传）'
         )
 
 
 class GlobalConfig(BaseModel):
     infer_image_name: String = Field(
         default="registry.dp.tech/dptech/deepmd-kit:2024Q1-d23cf3e", 
-        description='Image address including dependencies for SSB-indference to run'
+        title='镜像地址',
+        description='包含DPA-SSE模型所需依赖的镜像地址'
     )
     scass_type: String = Field(
         default="c8_m31_1 * NVIDIA T4", 
-        description='Bohrium machine node type for MD simulation'
+        title='硬件配置', 
+        description='预测任务节点类型'
     )
     group_size: Int = Field(
         default=1,
         ge=1,
-        description='Number of tasks per parallel run group'
+        title="任务组大小",
+        description='每个任务组（对应一个计算节点）的任务数'
     )
     pool_size: Int = Field(
         default=1,
         ge=1,
-        description='For multi tasks per parallel group, the pool size of multiprocessing pool to handle each task (1 for serial, -1 for infinity)'
+        title="并行任务数",
+        description='每个任务组中，同时并行计算的任务数量（1为串行，-1为无限）'
     )
 
 
@@ -89,11 +96,13 @@ class ModelVersion(String,Enum):
 class InterOptions(BaseModel):
     inter_type: InterTypeOptions = Field(
         default=InterTypeOptions.deepmd, 
-        description='Interatomic pair style type'
+        title='原子力场类型',
+        description='原子力场类型'
     )
     model_version: ModelVersion = Field(
         default=ModelVersion.dpa2,
-        description="Choose version of DPA-SSE model"
+        title='DPA-SSE模型的版本',
+        description="选择DPA-SSE模型的版本"
     )
 
 @inter_group
@@ -101,7 +110,8 @@ class InterOptions(BaseModel):
 class CustomPotential(BaseModel):
     type_map: Dict[String, Int] = Field(
         default={},
-        description="Element type map (if required)"
+        title='元素种类映射',
+        description="元素符号与力场模型中元素序号的对应关系，使用DPA-SSE则无需提供"
     )
 
 
@@ -110,7 +120,8 @@ class CustomPotential(BaseModel):
 class DPVersion(BaseModel):
     dpmd_version: String = Field(
         default="3.0.0",
-        description="Version DeepMD-Kit"
+        title="DeepMD-Kit版本",
+        description="DeepMD-Kit版本"
     )
 
 

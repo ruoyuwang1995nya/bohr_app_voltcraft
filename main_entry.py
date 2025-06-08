@@ -18,8 +18,8 @@ def print_full_traceback(exc):
 
 def to_parser():
     return {
-        "LAMMPS": SubParser(LammpsModel, lmp_runner, "Running with LAMMPS"),
-        "Inference": SubParser(InferenceModel, infer_runner, "Inference with DPA-SSE")
+        "LAMMPS": SubParser(LammpsModel, lmp_runner, "使用DPA-SSE固态预训练大模型进行LAMMPS模拟"),
+        "Inference": SubParser(InferenceModel, infer_runner, "使用DPA-SSE固态预训练大模型进行预测")
     }
 
 

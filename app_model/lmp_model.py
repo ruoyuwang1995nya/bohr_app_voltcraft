@@ -22,16 +22,11 @@ from dp.launching.cli import (
     run_sp_and_exit,
 )
 
-inter_group = ui.Group('Interaction Type', 'Define interatomic description')
-relax_group = ui.Group('Relaxation Parameters', 'Define Relaxation Parameters')
-eos_group = ui.Group('Equation of State (EOS)', 'Equation of State (EOS)')
-elastic_group = ui.Group('Elastic Const & Moduli', 'Elastic const & moduli')
-surface_group = ui.Group('Surface Formation Energy', 'Surface Formation Energy')
-interstitial_group = ui.Group('Interstitial Formation Energy', 'Interstitial Formation Energy')
-vacancy_group = ui.Group('Vacancy Formation Energy', 'Vacancy Formation Energy')
-gamma_group = ui.Group('GSFE Curve (Gamma Line)', 'GSFE Curve (Gamma Line)')
-phonon_group = ui.Group('Phonon Spectra', 'Phonon Spectra')
-msd_group = ui.Group('Mean square displacement (MSD)','Mean square displacement (MSD)')
+inter_group = ui.Group('原子力场类型', 'Define interatomic description')
+relax_group = ui.Group('结构弛豫', 'Define Relaxation Parameters')
+eos_group = ui.Group('状态方程 (EOS)', 'Equation of State (EOS)')
+elastic_group = ui.Group('弹性常数与弹性模量', 'Elastic const & moduli')
+msd_group = ui.Group('均方位移 (MSD)','Mean square displacement (MSD)')
 
 
 class InjectConfig(BaseModel):
@@ -51,47 +46,55 @@ class InjectConfig(BaseModel):
     dflow_storage_endpoint: DflowStorageEndpoint
     dflow_storage_repository: DflowStorageRepository
 
-
 class UploadFiles(BaseModel):
     configurations: List[InputFilePath] = \
-        Field(..., description='Configuration `POSCAR` to be tested (name differently for multiple files)')
+        Field(...,
+              title='结构文件', 
+              description='POSCAR格式,可提供多个')
     potential_models: Optional[List[InputFilePath]] = \
         Field(None, 
-            description='Custom interatomic potential files (Do not upload if you want to use the pre-trained DPA-SSE model)'
+            title='自定义的原子力场文件',
+            description='如使用预训练DPA-SSE模型则无需上传'
             )
     parameter_files: List[InputFilePath] = \
         Field(None, ftypes=['json'], max_file_count=2,
-                description='(Optional) Specify parameter `JSON` files for SSB-MD to override the default settings,\
-               (Do not upload if want to do setting manually in the later UI page)',
+            title='自定义MD模拟参数文件',
+            description='（可选）JSON格式，覆盖默认设置（如使用参数模板则无需上传）',
         )
 
 
 class GlobalConfig(BaseModel):
     lammps_image_name: String = Field(
         default="registry.dp.tech/dptech/dpmd:2.2.8-cuda12.0", 
-        description='LAMMPS image address for MD simulation'
+        title='LAMMPS镜像',
+        description='用于分子动力学模拟的LAMMPS镜像地址'
     )
     lammps_run_command: String = Field(
         default="lmp -in in.lammps", 
-        description='LAMMPS run command (lmp instruction file name should be `in.lammps`)'
+        title='LAMMPS运行命令',
+        description='命令行命令（LAMMPS的输入文件名应为`in.lammps`）'
     )
     apex_image_name: String = Field(
         default="registry.dp.tech/dptech/prod-11045/apex-dependency:1.2.0", 
-        description='Image address including dependencies of APEX to run'
+        title='APEX镜像',
+        description='包含APEX运行依赖的镜像地址 （无需改动）'
     )
     scass_type: String = Field(
-        default="c8_m31_1 * NVIDIA T4", 
-        description='Bohrium machine node type for MD simulation'
+        default="c8_m31_1 * NVIDIA T4",
+        title='硬件配置', 
+        description='用于分子动力学模拟的Bohrium节点硬件型号'
     )
     group_size: Int = Field(
         default=1,
         ge=1,
-        description='Number of tasks per parallel run group'
+        title="任务组大小",
+        description='每个任务组（对应一个计算节点）的任务数'
     )
     pool_size: Int = Field(
         default=1,
         ge=1,
-        description='For multi tasks per parallel group, the pool size of multiprocessing pool to handle each task (1 for serial, -1 for infinity)'
+        title="并行任务数",
+        description='每个任务组中，同时并行计算的任务数量（1为串行，-1为无限）'
     )
 
 
@@ -106,11 +109,13 @@ class ModelVersion(String,Enum):
 class InterOptions(BaseModel):
     inter_type: InterTypeOptions = Field(
         default=InterTypeOptions.deepmd, 
-        description='Interatomic pair style type'
+        title='原子力场类型',
+        description='原子力场类型'
     )
     model_version: ModelVersion = Field(
         default=ModelVersion.dpa1,
-        description="Choose version of DPA-SSE model"
+        title='DPA-SSE模型的版本',
+        description="选择DPA-SSE模型的版本"
     )
     
     
@@ -120,7 +125,8 @@ class InterOptions(BaseModel):
 class CustomPotential(BaseModel):
     type_map: Dict[String, Int] = Field(
         default={},
-        description="Element type map (if required)"
+        title='元素种类映射',
+        description="元素符号与力场模型中元素序号的对应关系，使用DPA-SSE则无需提供"
     )
     
 
@@ -129,7 +135,8 @@ class CustomPotential(BaseModel):
 class DPVersion(BaseModel):
     dpmd_version: String = Field(
         default="2.2.8",
-        description="Version DeepMD-Kit"
+        title="DeepMD-Kit版本",
+        description="DeepMD-Kit版本"
     )
     
 
@@ -138,40 +145,34 @@ class DPVersion(BaseModel):
 class RelaxationParameters(BaseModel):
     custom_relax_lmp_input: Boolean = Field(
         default=False,
-        description='Specify LAMMPS input file for relaxation'
+        title='高级设置',
+        description='用于结构弛豫的LAMMPS输入文件'
     )
     etol: Float = Field(
         default=1e-4,
         ge=0,
-        description='Energy covergence tolerance for minimization'
+        title='能量收敛标准',
+        description='eV'
     )
     ftol: Float = Field(
         default=1e-4,
         ge=0,
-        description='Force covergence tolerance for minimization'
+        title='受力收敛标准',
+        description='eV/Angstrom'
     )
     maxiter: Int = Field(
         default=100,
         ge=0,
-        description='Maximum number of minimization steps'
+        title='最大步数',
+        description='结构弛豫的最大步数'
     )
     maxeval: Int = Field(
         default=100,
         ge=0,
-        description='Maximum number of minimization evaluations'
+        title='最大评估次数',
+        description='结构弛豫的最大评估次数'
     )
-    #relax_pos: Boolean = Field(
-    #    default=True,
-    #    description='Relax atom positions'
-    #)
-    #relax_shape: Boolean = Field(
-    #    default=True,
-    #    description='Relax unit cell shape'
-    #)
-    #relax_vol: Boolean = Field(
-    #    default=True,
-    #    description='Relax unit cell volume'
-    #)
+
 
 
 @relax_group
@@ -180,6 +181,7 @@ class RelaxInLmp(BaseModel):
     relax_in_lmp: String = Field(
         default=None,
         format="multi-line",
+        title='自定义命令',
         description='LAMMPS input instruction for relaxation'
     )
 
@@ -191,7 +193,9 @@ class CalTypeOptions(String, Enum):
 
 @eos_group
 class EOSOptions(BaseModel):
-    select_eos: Boolean = Field(default=False, description='Do EOS exploration')
+    select_eos: Boolean = Field(default=False, 
+                                title='计算',
+                                description='是否进行状态方程（EOS）计算')
 
 
 @eos_group
@@ -199,31 +203,37 @@ class EOSOptions(BaseModel):
 class EOSParameters(BaseModel):
     custom_eos_calc: Boolean = Field(
         default=False,
-        description='Customize advanced LAMMPS settings for EOS calculation'
+        title='高级设置',
+        description='自定义EOS计算的高级设置'
     )
     eos_cal_type: CalTypeOptions = Field(
         default=CalTypeOptions.relaxation,
         render_type="radio",
-        description='Type of MD calculation'
+        title='计算类型',
+        description='MD计算类型'
     )
     vol_start: Float = Field(
         default=0.8,
         gt=0,
-        description='Starting volume fraction'
+        title='起始体积缩放系数',
+        description='初始体积*系数'
     )
     vol_end: Float = Field(
         default=1.2,
         gt=0,
-        description='End volume fraction'
+        title='终止体积缩放系数',
+        description='初始体积*系数'
     )
     vol_step: Float = Field(
         default=0.05,
         gt=0,
-        description='Volume fraction step'
+        title='体积缩放间隔',
+        description='体积缩放间隔'
     )
     vol_abs: Boolean = Field(
         default=False,
-        description='If is absolute volume'
+        title='使用绝对体积',
+        description='是否采用绝对体积'
     )
 
 
@@ -233,68 +243,81 @@ class EOSAdvance(BaseModel):
     eos_etol: Float = Field(
         default=0,
         ge=0,
-        description='Energy covergence tolerance for minimization'
+        title='能量收敛标准',
+        description='结构弛豫的能量收敛标准'
     )
     eos_ftol: Float = Field(
         default=1e-10,
         ge=0,
-        description='Force covergence tolerance for minimization'
+        title='受力收敛标准',
+        description='结构弛豫的受力收敛标准'
     )
     eos_maxiter: Int = Field(
         default=5000,
         ge=0,
-        description='Maximum number of minimization steps'
+        title='最大步数',
+        description='结构弛豫的最大步数'
     )
     eos_maxeval: Int = Field(
         default=500000,
         ge=0,
-        description='Maximum number of minimization evaluations'
+        title='最大评估次数',
+        description='结构弛豫的最大评估次数'
     )
     eos_relax_pos: Boolean = Field(
         default=True,
-        description='Relax atom positions'
+        title='弛豫原子位置',
+        description='弛豫中允许改变原子位置'
     )
     eos_relax_shape: Boolean = Field(
         default=True,
-        description='Relax unit cell shape'
+        title='弛豫晶胞形状',
+        description='弛豫中允许改变晶胞形状'
     )
     eos_relax_vol: Boolean = Field(
         default=False,
-        description='Relax unit cell volume'
+        title='弛豫晶胞体积',
+        description='弛豫中允许改变晶胞体积'
     )
     eos_in_lmp: String = Field(
         default=None,
         format="multi-line",
-        description='LAMMPS input instruction for EOS'
+        title='自定义命令',
+        description='用于EOS计算的LAMMPS输入参数，覆盖模板输入参数'
     )
 
 
 @elastic_group
 class ElasticOptions(BaseModel):
-    select_elastic: Boolean = Field(default=False, description='Do elastic property exploration')
-
+    select_elastic: Boolean = Field(default=False,
+                                title='计算',
+                                    description='是否进行弹性性质计算')
 
 @elastic_group
 @ui.Visible(ElasticOptions, "select_elastic", Equal, True)
 class ElasticParameters(BaseModel):
     custom_elastic_calc: Boolean = Field(
         default=False,
-        description='Customize advanced LAMMPS settings for elastic calculation'
+        title='高级设置',
+        description='自定义弹性性质计算的高级LAMMPS设置'
     )
     elastic_cal_type: CalTypeOptions = Field(
         default=CalTypeOptions.relaxation,
         render_type="radio",
-        description='Type of MD calculation'
+        title='计算类型',
+        description='分子动力学计算类型'
     )
     norm_deform: Float = Field(
         default=0.01,
         gt=0,
-        description='Normal deformation'
+        title='法向应变',
+        description='法向应变大小'
     )
     shear_deform: Float = Field(
         default=0.01,
         gt=0,
-        description='Shear deformation'
+        title='剪切应变',
+        description='剪切应变大小'
     )
 
 
@@ -304,491 +327,110 @@ class ElasticAdvance(BaseModel):
     elastic_etol: Float = Field(
         default=0,
         ge=0,
-        description='Energy covergence tolerance for minimization'
+        title='能量收敛标准',
+        description='结构弛豫的能量收敛标准'
     )
     elastic_ftol: Float = Field(
         default=1e-10,
         ge=0,
-        description='Force covergence tolerance for minimization'
+        title='受力收敛标准',
+        description='结构弛豫的受力收敛标准'
     )
     elastic_maxiter: Int = Field(
         default=5000,
         ge=0,
-        description='Maximum number of minimization steps'
+        title='最大步数',
+        description='结构弛豫的最大步数'
     )
     elastic_maxeval: Int = Field(
         default=500000,
         ge=0,
-        description='Maximum number of minimization evaluations'
+        title='最大评估次数',
+        description='结构弛豫的最大评估次数'
     )
     elastic_relax_pos: Boolean = Field(
         default=True,
-        description='Relax atom positions'
+        title='弛豫原子位置',
+        description='弛豫中允许改变原子位置'
     )
     elastic_relax_shape: Boolean = Field(
         default=False,
-        description='Relax unit cell shape'
+        title='弛豫晶胞形状',
+        description='弛豫中允许改变晶胞形状'
     )
     elastic_relax_vol: Boolean = Field(
         default=False,
-        description='Relax unit cell volume'
+        title='弛豫晶胞体积',
+        description='弛豫中允许改变晶胞体积'
     )
     elastic_in_lmp: String = Field(
         default=None,
         format="multi-line",
-        description='LAMMPS input instruction for Elastic MD'
+        title='自定义命令',
+        description='用于弹性性质计算的自定义LAMMPS输入参数，覆盖模板输入参数'
     )
 
 @msd_group
 class MSDOptions(BaseModel):
     select_msd: Boolean = Field(default=False, 
-                                description='Do mean square displacement (MSD) calculation')
+                                title='计算',    
+                                description='是否进行均方位移（MSD）计算')
 @msd_group
 @ui.Visible(MSDOptions, "select_msd", Equal, True)
 class MSDParameters(BaseModel):
     msd_supercell: List[Int] = Field(
         default=[1,1,1],
-        description='Supercell for MSD calculation'
+        title='扩胞系数',
+        description='超胞的扩胞系数'
     )
-    #msd_use_template: Boolean = Field(
-    #    default=False, 
-    #    description='Using template for MSD calculation')
     
     msd_ion_list: List[String] = Field(
         default=['Li'],
-        description='Atom type to calculate MSD'
+        title='离子种类',
+        description='需要计算MSD的离子种类，可多选'
     )
     msd_temperature: List[Float] = Field(
         default=[300.0],
-        description='Temperature for MSD calculation'
+        title='模拟温度 (K)',
+        description='模拟温度'
     )
     msd_equi_step: Int = Field(
         default=1000,
         ge=0,
-        description='Number of step for equilibration'
+        title='预平衡步数',
+        description='使模拟体系达到对应温度的平衡状态'
     )
     msd_run_step: Int = Field(
         default=10000,
         ge=0,
-        description='Number of step for NVT production run'
+        title='NVT模拟步数',
+        description='用于MSD计算'
     )
     msd_out_step: Int = Field(
         default=100,
         ge=0,
-        description='Step interval to dump MSD'
+        title='MSD的输出间隔',
+        description='单位：模拟步数'
     )
     msd_dt: Float = Field(
         default=1.,
         ge=1,
-        description='Time step in fs for MSD calculation'
+        title='原子步步长',
+        description='单位：fs'
     )
     msd_in_lmp: String = Field(
         default=None,
         format="multi-line",
-        description='LAMMPS input instruction for MSD MD'
+        title='自定义命令',
+        description='用于MSD计算的自定义LAMMPS输入参数，覆盖模板输入参数'
     )
     skip_sigma: Boolean = Field(
         default=False,
-        description="Whether to calculate ion conductivity with Nernst-Einstein relation"
+        title='是否跳过离子电导率计算',
+        description="是否采用Nernst-Einstein关系计算离子电导率"
     )
-    
-#@msd_group
-#@ui.Visible(MSDParameters, "msd_use_template", Equal, False)
-#class MSDCustomInput(BaseModel):
-#    msd_custom_lmp: List[str] = Field(
-#        default=None,
-#        description='Custom LAMMPS input files provided by users'
-#    )
-#    msd_res_filename: String = Field(
-#        default='msd.out',
-#        description='Output file for MSD calculation'
-#    )
-#    msd_res_del: String = Field(
-##        default=r" ",
-#       description='Delimiter in parsing MSD output'
-#    )
-#    msd_res_dt: Float = Field(
-#        default=1.0,
-#        description='Delimiter in parsing MSD output'
-#    )
-#    msd_res_diff_cvt: Float = Field(
-#        default=1e-5,
-#        description='Delimiter in parsing MSD output'
-#    )
 
     
-
-
-@surface_group
-class SurfaceOptions(BaseModel):
-    select_surface: Boolean = Field(default=False, description='Do surface formation energy exploration')
-
-
-@surface_group
-@ui.Visible(SurfaceOptions, "select_surface", Equal, True)
-class SurfaceParameters(BaseModel):
-    custom_surface_calc: Boolean = Field(
-        default=False,
-        description='Customize advanced LAMMPS settings for surface formation energy calculation'
-    )
-    surface_cal_type: CalTypeOptions = Field(
-        default=CalTypeOptions.relaxation,
-        render_type="radio",
-        description='Type of MD calculation'
-    )
-    max_miller: Int = Field(
-        default=2,
-        gt=0,
-        description='Maximum searched Miller index'
-    )
-    min_slab_size: Float = Field(
-        default=50,
-        gt=0,
-        description='Minimum slab thickness in Angstrom'
-    )
-    min_vacuum_size: Float = Field(
-        default=20,
-        ge=0,
-        description='Minimum vacuum layer thickness in Angstrom'
-    )
-    pert_xz: Float = Field(
-        default=0.01,
-        ge=0,
-        description='Perturbation in xz plane'
-    )
-
-
-@surface_group
-@ui.Visible(SurfaceParameters, "custom_surface_calc", Equal, True)
-class SurfaceAdvance(BaseModel):
-    surface_etol: Float = Field(
-        default=0,
-        ge=0,
-        description='Energy covergence tolerance for minimization'
-    )
-    surface_ftol: Float = Field(
-        default=1e-10,
-        ge=0,
-        description='Force covergence tolerance for minimization'
-    )
-    surface_maxiter: Int = Field(
-        default=5000,
-        ge=0,
-        description='Maximum number of minimization steps'
-    )
-    surface_maxeval: Int = Field(
-        default=500000,
-        ge=0,
-        description='Maximum number of minimization evaluations'
-    )
-    surface_relax_pos: Boolean = Field(
-        default=True,
-        description='Relax atom positions'
-    )
-    surface_relax_shape: Boolean = Field(
-        default=True,
-        description='Relax unit cell shape'
-    )
-    surface_relax_vol: Boolean = Field(
-        default=False,
-        description='Relax unit cell volume'
-    )
-    surface_in_lmp: String = Field(
-        default=None,
-        format="multi-line",
-        description='LAMMPS input instruction for Surface MD'
-    )
-
-
-@interstitial_group
-class InterstitialOptions(BaseModel):
-    select_interstitial: Boolean = Field(default=False, description='Do interstitial formation energy exploration')
-
-
-@interstitial_group
-@ui.Visible(InterstitialOptions, "select_interstitial", Equal, True)
-class InterstitialParameters(BaseModel):
-    custom_interstitial_calc: Boolean = Field(
-        default=False,
-        description='Customize advanced LAMMPS settings for interstitial formation energy calculation'
-    )
-    interstitial_cal_type: CalTypeOptions = Field(
-        default=CalTypeOptions.relaxation,
-        render_type="radio",
-        description='Type of MD calculation'
-    )
-    interstitial_supercell_size: List[Int] = Field(
-        default=[2, 2, 2],
-        description='Supercell size for interstitial calculation (max 3 integers allowed)'
-    )
-    insert_ele: String = Field(
-        default="H",
-        description='Elemen to be inserted'
-    )
-
-
-@interstitial_group
-@ui.Visible(InterstitialParameters, "custom_interstitial_calc", Equal, True)
-class InterstitialAdvance(BaseModel):
-    interstitial_etol: Float = Field(
-        default=0,
-        ge=0,
-        description='Energy covergence tolerance for minimization'
-    )
-    interstitial_ftol: Float = Field(
-        default=1e-10,
-        ge=0,
-        description='Force covergence tolerance for minimization'
-    )
-    interstitial_maxiter: Int = Field(
-        default=5000,
-        ge=0,
-        description='Maximum number of minimization steps'
-    )
-    interstitial_maxeval: Int = Field(
-        default=500000,
-        ge=0,
-        description='Maximum number of minimization evaluations'
-    )
-    interstitial_relax_pos: Boolean = Field(
-        default=True,
-        description='Relax atom positions'
-    )
-    interstitial_relax_shape: Boolean = Field(
-        default=True,
-        description='Relax unit cell shape'
-    )
-    interstitial_relax_vol: Boolean = Field(
-        default=True,
-        description='Relax unit cell volume'
-    )
-    interstitial_in_lmp: String = Field(
-        default=None,
-        format="multi-line",
-        description='LAMMPS input instruction for Interstitial MD'
-    )
-
-
-@vacancy_group
-class VacancyOptions(BaseModel):
-    select_vacancy: Boolean = Field(default=False, description='Do vacancy formation energy exploration')
-
-
-@vacancy_group
-@ui.Visible(VacancyOptions, "select_vacancy", Equal, True)
-class VacancyParameters(BaseModel):
-    custom_vacancy_calc: Boolean = Field(
-        default=False,
-        description='Customize advanced LAMMPS settings for vacancy formation energy calculation'
-    )
-    vacancy_cal_type: CalTypeOptions = Field(
-        default=CalTypeOptions.relaxation,
-        render_type="radio",
-        description='Type of MD calculation'
-    )
-    vacancy_supercell_size: List[Int] = Field(
-        default=[2, 2, 2],
-        description='Supercell size for vacancy calculation (max 3 integers allowed)'
-    )
-
-
-@vacancy_group
-@ui.Visible(VacancyParameters, "custom_vacancy_calc", Equal, True)
-class VacancyAdvance(BaseModel):
-    vacancy_etol: Float = Field(
-        default=0,
-        ge=0,
-        description='Energy covergence tolerance for minimization'
-    )
-    vacancy_ftol: Float = Field(
-        default=1e-10,
-        ge=0,
-        description='Force covergence tolerance for minimization'
-    )
-    vacancy_maxiter: Int = Field(
-        default=5000,
-        ge=0,
-        description='Maximum number of minimization steps'
-    )
-    vacancy_maxeval: Int = Field(
-        default=500000,
-        ge=0,
-        description='Maximum number of minimization evaluations'
-    )
-    vacancy_relax_pos: Boolean = Field(
-        default=True,
-        description='Relax atom positions'
-    )
-    vacancy_relax_shape: Boolean = Field(
-        default=True,
-        description='Relax unit cell shape'
-    )
-    vacancy_relax_vol: Boolean = Field(
-        default=True,
-        description='Relax unit cell volume'
-    )
-    vacancy_in_lmp: String = Field(
-        default=None,
-        format="multi-line",
-        description='LAMMPS input instruction for Vacancy MD'
-    )
-
-
-@gamma_group
-class GammaOptions(BaseModel):
-    select_gamma: Boolean = Field(default=False, description='Do GSFE curve (Gamma line) exploration')
-
-
-@gamma_group
-@ui.Visible(GammaOptions, "select_gamma", Equal, True)
-class GammaParameters(BaseModel):
-    custom_gamma_calc: Boolean = Field(
-        default=False,
-        description='Customize advanced LAMMPS settings for GSFE curve (Gamma line) calculation'
-    )
-    gamma_cal_type: CalTypeOptions = Field(
-        default=CalTypeOptions.relaxation,
-        render_type="radio",
-        description='Type of MD calculation'
-    )
-    plane_miller: List[Int] = Field(
-        default=[1, 1, 1],
-        description='Miller index of gamma slab surface (max 4 integers allowed)'
-    )
-    slip_direction: List[Int] = Field(
-        default=[-1, 1, 0],
-        description='Slip direction of gamma slab surface (max 4 integers allowed)'
-    )
-    slip_length: List[Float] = Field(None,
-        description='(Optional) Slip length of gamma slab surface (max 3 floats allowed)'
-    )
-    plane_shift: Float = Field(
-        default=0,
-        description='Shift of slip plane along the slab z direction'
-    )
-    gamma_n_steps: Int = Field(
-        default=10,
-        gt=0,
-        description='Number of slip steps'
-    )
-    gamma_supercell_size: List[Int] = Field(
-        default=[1, 1, 5],
-        description='Supercell size for gamma calculation (max 3 integers allowed)'
-    )
-    gamma_vacuum_size: Float = Field(
-        default=0,
-        ge=0,
-        description='Vacuum layer thickness in Angstrom'
-    )
-    add_fix_x: Boolean = Field(
-        default=True,
-        description='Fix atom along x direction'
-    )
-    add_fix_y: Boolean = Field(
-        default=True,
-        description='Fix atom along y direction'
-    )
-    add_fix_z: Boolean = Field(
-        default=False,
-        description='Fix atom along z direction'
-    )
-
-
-@gamma_group
-@ui.Visible(GammaParameters, "custom_gamma_calc", Equal, True)
-class GammaAdvance(BaseModel):
-    gamma_etol: Float = Field(
-        default=0,
-        ge=0,
-        description='Energy covergence tolerance for minimization'
-    )
-    gamma_ftol: Float = Field(
-        default=1e-10,
-        ge=0,
-        description='Force covergence tolerance for minimization'
-    )
-    gamma_maxiter: Int = Field(
-        default=5000,
-        ge=0,
-        description='Maximum number of minimization steps'
-    )
-    gamma_maxeval: Int = Field(
-        default=500000,
-        ge=0,
-        description='Maximum number of minimization evaluations'
-    )
-    gamma_relax_pos: Boolean = Field(
-        default=True,
-        description='Relax atom positions'
-    )
-    gamma_relax_shape: Boolean = Field(
-        default=False,
-        description='Relax unit cell shape'
-    )
-    gamma_relax_vol: Boolean = Field(
-        default=False,
-        description='Relax unit cell volume'
-    )
-    gamma_in_lmp: String = Field(
-        default=None,
-        format="multi-line",
-        description='LAMMPS input instruction for Gamma MD'
-    )
-
-
-@phonon_group
-class PhononOptions(BaseModel):
-    select_phonon: Boolean = Field(default=False, description='Do phonon spectra exploration')
-
-
-@phonon_group
-@ui.Visible(PhononOptions, "select_phonon", Equal, True)
-class PhononParameters(BaseModel):
-    specify_phonopy_settings: Boolean = Field(
-        default=False,
-        description='Specify phonopy settings directly for phonon spectra calculation'
-    )
-    primitive_cell: Boolean = Field(
-        default=False,
-        description='Use primitive cell for phonon calculation'
-    )
-    phonon_supercell_size: List[Int] = Field(
-        default=[2, 2, 2],
-        description='Supercell size for phonon calculation (max 3 integers allowed)'
-    )
-    seekpath_from_original: Boolean = Field(
-        default=False,
-        description='Seekpath search by original cell'
-    )
-
-
-@phonon_group
-@ui.Visible(PhononParameters, "specify_phonopy_settings", Equal, True)
-class PhononAdvance(BaseModel):
-    band: String = Field(None,
-        description='(Optional) Phonopy BAND'
-    )
-    band_labels: String = Field(None,
-        description='(Optional) Phonopy BAND_LABELS'
-    )
-    mesh: String = Field(None,
-        description='(Optional) Phonopy MESH'
-    )
-    primitive_axes: String = Field(None,
-        description='(Optional) Phonopy PRIMITIVE_AXES'
-    )
-    band_points: String = Field(None,
-        description='(Optional) Phonopy BAND_POINTS'
-    )
-    band_connection: Boolean = Field(
-        default=True,
-        description='Phonopy BAND_CONNECTION'
-    )
-    phonon_in_lmp: String = Field(
-        default=None,
-        format="multi-line",
-        description='LAMMPS input instruction for Phonon MD'
-    )
 
 
 class LammpsModel(
@@ -808,7 +450,6 @@ class LammpsModel(
     ElasticAdvance,
     MSDOptions,
     MSDParameters,
-    #MSDTemplate,
     BaseModel
 ):
     output_directory: OutputDirectory = Field(default='./outputs')
