@@ -66,7 +66,7 @@ class GlobalConfig(BaseModel):
         description='包含DPA-SSE模型所需依赖的镜像地址'
     )
     scass_type: String = Field(
-        default="c8_m31_1 * NVIDIA T4", 
+        default="c12_m64_1 * NVIDIA L40", 
         title='硬件配置', 
         description='预测任务节点类型'
     )
