@@ -80,7 +80,7 @@ class GlobalConfig(BaseModel):
         description='包含APEX运行依赖的镜像地址 （无需改动）'
     )
     scass_type: String = Field(
-        default="c12_m64_1 * NVIDIA L40",
+        default="c8_m32_1 * NVIDIA V100",
         title='硬件配置', 
         description='用于分子动力学模拟的Bohrium节点硬件型号'
     )
